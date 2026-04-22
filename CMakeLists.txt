@@ -7,7 +7,26 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(-Wall -Wextra -Werror)
 
+<<<<<<< HEAD
 # Dodaj plik wykonywalny
 add_executable(${PROJECT_NAME}
     src/main.cpp
 )
+=======
+
+# gotowa biblioteka – libparameters 
+set(PARAMETERS_RELEASE_DIR ${CMAKE_SOURCE_DIR}/AiZO-P1-sortingAlgorithms/release)
+
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${PARAMETERS_RELEASE_DIR}
+    ${CMAKE_SOURCE_DIR}/src
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    ${PARAMETERS_RELEASE_DIR}/libparameters.so
+)
+>>>>>>> 2d889de (feat: add FileIO (load/save), runSingleFile, add main.cpp with dispatcher)
