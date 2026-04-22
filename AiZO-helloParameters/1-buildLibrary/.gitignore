@@ -1,0 +1,9 @@
+# What we choose to ignore in our commits.
+# From top to bottom:
+# - swap files (vim)
+# - object files
+# - linux libraries
+
+*.swp
+*.o
+*.so
