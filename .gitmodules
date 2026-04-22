@@ -1,0 +1,3 @@
+[submodule "for-students"]
+	path = for-students
+	url = https://gitlab.com/mrozo94/for-students.git
