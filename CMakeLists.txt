@@ -7,14 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(-Wall -Wextra -Werror)
 
-
-# Dodaj plik wykonywalny
-add_executable(${PROJECT_NAME}
-    src/main.cpp
-)
-
-
-# gotowa biblioteka – libparameters 
+# gotowa biblioteka – libparameters
 set(PARAMETERS_RELEASE_DIR ${CMAKE_SOURCE_DIR}/AiZO-P1-sortingAlgorithms/release)
 
 add_executable(${PROJECT_NAME}
