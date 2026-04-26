@@ -8,6 +8,8 @@ template <typename T>
 class SingleList
 {
 public:
+    using value_type = T;
+
     struct Node
     {
         T     val;

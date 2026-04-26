@@ -9,6 +9,8 @@ template <typename T>
 class DoubleList
 {
 public:
+    using value_type = T;
+
     struct Node
     {
         T     val;

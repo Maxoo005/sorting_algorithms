@@ -9,6 +9,8 @@ template <typename T>
 class SortArray
 {
 public:
+    using value_type = T;
+
     explicit SortArray(int capacity) : m_data(capacity) {}
 
     SortArray(const T *src, int size) : m_data(src, src + size) {}
