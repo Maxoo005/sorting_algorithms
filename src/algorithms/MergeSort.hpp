@@ -1,12 +1,8 @@
 #pragma once
 
-#include <vector>
-
-// Merge sort – działa na każdej strukturze z interfejsem get(i)/set(i)/size()
+// Merge sort 
 // Złożoność czasowa: O(n log n)
-// Złożoność pamięciowa: O(n) – bufor pomocniczy
-// Uwaga: dla list get(i) to O(n), więc całość staje się O(n² log n) –
-//        widoczne w benchmarkach jako różnica między tablicą a listą.
+// Złożoność pamięciowa: O(n) – jeden bufor alokowany raz na całe sortowanie
 
 namespace MergeSort
 {
@@ -14,7 +10,7 @@ namespace MergeSort
     {
         template <typename Container>
         void merge(Container &c, int left, int mid, int right,
-                   std::vector<typename Container::value_type> &tmp)
+                   typename Container::value_type *tmp)
         {
             // Skopiuj zakres do bufora
             for (int i = left; i <= right; ++i)
@@ -37,7 +33,7 @@ namespace MergeSort
 
         template <typename Container>
         void sort(Container &c, int left, int right,
-                  std::vector<typename Container::value_type> &tmp)
+                  typename Container::value_type *tmp)
         {
             if (left >= right) return;
             int mid = left + (right - left) / 2;
@@ -51,7 +47,9 @@ namespace MergeSort
     void sort(Container &c)
     {
         if (c.size() <= 1) return;
-        std::vector<typename Container::value_type> tmp(c.size());
+        // bufor alokowany raz – nie robimy new w każdym wywołaniu rekurencyjnym
+        typename Container::value_type *tmp = new typename Container::value_type[c.size()];
         detail::sort(c, 0, c.size() - 1, tmp);
+        delete[] tmp;
     }
 }

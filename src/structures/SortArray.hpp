@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
+#include <stdexcept>
 
 // Tablica dynamiczna z interfejsem dla alg sortowania
 // Dostęp losowy O(1), swap O(1)
@@ -11,19 +11,33 @@ class SortArray
 public:
     using value_type = T;
 
-    explicit SortArray(int capacity) : m_data(capacity) {}
+    // konstruktor z pojemnością – alokuje tablicę, wartości niezainicjowane
+    explicit SortArray(int capacity)
+        : m_data(new T[capacity]), m_size(capacity) {}
 
-    SortArray(const T *src, int size) : m_data(src, src + size) {}
+    // konstruktor kopiujący dane ze zwykłej tablicy
+    SortArray(const T *src, int size)
+        : m_data(new T[size]), m_size(size)
+    {
+        for (int i = 0; i < size; ++i)
+            m_data[i] = src[i];
+    }
 
-    int      size()                    const { return static_cast<int>(m_data.size()); }
+    ~SortArray() { delete[] m_data; }
+
+    // kopiowanie zablokowane – ręczne zarządzanie pamięcią
+    SortArray(const SortArray &) = delete;
+    SortArray &operator=(const SortArray &) = delete;
+
+    int      size()                    const { return m_size; }
+    T       &get(int i)                      { return m_data[i]; }
+    const T &get(int i)                const { return m_data[i]; }
+    void     set(int i, const T &val)        { m_data[i] = val; }
     T       &operator[](int i)               { return m_data[i]; }
     const T &operator[](int i)         const { return m_data[i]; }
     void     swap(int i, int j)              { std::swap(m_data[i], m_data[j]); }
 
-    // surowy wskaźnik do danych
-    //T       *raw()       { return m_data.data(); }
-    //const T *raw() const { return m_data.data(); }
-
 private:
-    std::vector<T> m_data;
+    T   *m_data;
+    int  m_size;
 };
