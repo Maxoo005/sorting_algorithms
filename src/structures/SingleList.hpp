@@ -13,7 +13,7 @@ public:
     struct Node
     {
         T     val;
-        Node *next;
+        Node *next;  // wskaznik tylko do przodu, wstecz sie nie cofniemy
         explicit Node(const T &v) : val(v), next(nullptr) {}
     };
 
@@ -23,7 +23,7 @@ public:
     {
         while (m_head)
         {
-            Node *next = m_head->next;
+            Node *next = m_head->next; // zapamietaj nastepny ZANIM zwolnisz aktualny
             delete m_head;
             m_head = next;
         }
@@ -33,11 +33,12 @@ public:
     SingleList &operator=(const SingleList &) = delete;
 
     // Wstawia element na koniec – używane przy wczytywaniu danych
+    // trick z Node** pozwala uniknąć osobnego sprawdzania "czy lista pusta"
     void pushBack(const T &val)
     {
-        Node **cur = &m_head;
-        while (*cur) cur = &(*cur)->next;
-        *cur = new Node(val);
+        Node **cur = &m_head;          // cur wskazuje na pole które chcemy wypełnić
+        while (*cur) cur = &(*cur)->next; // idź do ostatniego nullptr
+        *cur = new Node(val);          // wstaw tu nowy wezel
         ++m_size;
     }
 
@@ -58,7 +59,7 @@ private:
         if (i < 0 || i >= m_size)
             throw std::out_of_range("SingleList: index out of range");
         Node *cur = m_head;
-        for (int k = 0; k < i; ++k) cur = cur->next;
+        for (int k = 0; k < i; ++k) cur = cur->next; // zawsze od glowy, O(n)
         return cur;
     }
 };

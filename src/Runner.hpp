@@ -14,11 +14,13 @@
 #include <iostream>
 #include <random>
 
-// Wywołaj Runner::run() / Parameters::readParameters.
+// Główna klasa sterująca programem
+// Wszystkie metody są statyczne – nie tworzymy obiektu Runner, po prostu wołamy Runner::run()
 class Runner
 {
 public:
-    // wejście Parameters::runMode.
+    // Punkt wejścia – czyta Parameters::runMode i uruchamia odpowiedni tryb
+    // to tylko kontener, nie tworzy obiektu Runner, więc wszystko jest static
     static void run()
     {
         switch (Parameters::runMode)
@@ -42,41 +44,48 @@ public:
     }
 
 private:
-    // Tryb a) — sortuje dane z pliku i opcjonalnie zapisuje wynik do pliku
+    // Tryb a) — wczytuje dane z pliku, sortuje i opcjonalnie zapisuje wynik
+    // struktura wybierana przez Parameters::structure (array/singleList/doubleList)
     static void singleFile()
     {
-        if (Parameters::inputFile.empty())
+        if (Parameters::inputFile.empty()) //walidacja bez pliku ni ma co
         {
             std::cerr << "Brak pliku wejściowego. Użyj -i <plik>.\n";
             return;
         }
 
-        if (Parameters::algorithm != Parameters::Algorithms::merge)
+        if (Parameters::algorithm != Parameters::Algorithms::merge) //mój strażnik tylko merge narazie
         {
             std::cerr << "singleFile: tylko MergeSort jest zaimplementowany (-a 2).\n";
             return;
         }
-
+            //fielO nullptr przy bledzie 
         int  size = 0;
-        int *data = FileIO::load<int>(Parameters::inputFile, size);
+        int *data = FileIO::load<int>(Parameters::inputFile, size); // wczytaj do surowej tablicy
         if (!data)
             return;
 
         switch (Parameters::structure)
         {
+
+            /*powtarza sie
+                1zbuduj
+                2porostuj
+                3przepisz wynik do tab data jest co veryfikować
+            */
             case Parameters::Structures::array:
             {
-                SortArray<int> arr(data, size);
+                SortArray<int> arr(data, size); // kopiuje data do SortArray
                 MergeSort::sort(arr);
-                for (int i = 0; i < size; ++i) data[i] = arr.get(i);
+                for (int i = 0; i < size; ++i) data[i] = arr.get(i); // przepisz wynik z powrotem
                 break;
             }
             case Parameters::Structures::singleList:
             {
                 SingleList<int> list;
-                for (int i = 0; i < size; ++i) list.pushBack(data[i]);
+                for (int i = 0; i < size; ++i) list.pushBack(data[i]); // zbuduj liste z danych
                 MergeSort::sort(list);
-                for (int i = 0; i < size; ++i) data[i] = list.get(i);
+                for (int i = 0; i < size; ++i) data[i] = list.get(i); // przepisz wynik
                 break;
             }
             case Parameters::Structures::doubleList:
@@ -93,15 +102,16 @@ private:
                 return;
         }
 
-        Verify::check(data, size);
-
+        Verify::check(data, size); // sprawdza czy tablica jest posortowana (assert/debug)
+            //zapis do plik jesli podane -o i zwolnienie pamieci
         if (!Parameters::outputFile.empty())
             FileIO::save<int>(Parameters::outputFile, data, size);
 
-        delete[] data;
+        delete[] data; // pamięć zaalokowana przez FileIO::load, zwalniamy
     }
 
-    // Tryb b) — wielokrotne sortowanie tych samych danych, zapis wyników do CSV.
+    // Tryb b) — benchmark: sortuje te same dane reps razy i mierzy czas
+    // wyniki (min/avg/max) trafiają na stdout i opcjonalnie do pliku CSV
     static void benchmark()
     {
         if (Parameters::algorithm != Parameters::Algorithms::merge)
@@ -109,39 +119,41 @@ private:
             std::cerr << "benchmark: tylko MergeSort jest zaimplementowany (-a 2).\n";
             return;
         }
-
+        //zeby nie pisac caly czas parameters::
         const int n    = Parameters::structureSize;
         const int reps = Parameters::iterations;
 
         if (n <= 0)
         {
-            std::cerr << "benchmark: rozmiar struktury musi być > 0 (-n <rozmiar>).\n";
+            std::cerr << "benchmark: rozmiar struktury musi być > 0 (-l <rozmiar>).\n";
             return;
         }
         if (reps <= 0)
         {
-            std::cerr << "benchmark: liczba iteracji musi być > 0 (-c <iteracje>).\n";
+            std::cerr << "benchmark: liczba iteracji musi być > 0 (-n <iteracje>).\n";
             return;
         }
 
-        // Generuj dane raz wszystkie iteracje używają tego samego wejścia
+        // generuj dane raz – każda iteracja sortuje TEN SAM zestaw (sortOnce kopiuje src wewnętrznie)
+        // dzięki temu wyniki są porównywalne między iteracjami
         int *src = generateData(n);
 
         long long minTime = LLONG_MAX;
         long long maxTime = LLONG_MIN;
         long long sumTime = 0LL;
 
-        for (int iter = 0; iter < reps; ++iter)
+        for (int iter = 0; iter < reps; ++iter) //-1 blad
         {
-            // sortOnce kopiuje src do struktury wewnętrznie src pozostaje niezmienione
-            const long long us = sortOnce(src, n);
+            // sortOnce kopiuje src do struktury wewnętrznie, src pozostaje niezmienione
+            const long long us = sortOnce(src, n); // czas w mikrosekundach
 
             if (us < 0)
             {
                 delete[] src;
-                return; // błąd struktury 
+                return; // błąd struktury
             }
 
+            // zbieraj statystyki
             if (us < minTime) minTime = us;
             if (us > maxTime) maxTime = us;
             sumTime += us;
@@ -154,22 +166,24 @@ private:
         std::cout << "min=" << minTime << "us  avg=" << avgTime
                   << "us  max=" << maxTime << "us\n";
 
-        if (!Parameters::resultsFile.empty())
+        if (!Parameters::resultsFile.empty())  //zapis
             CsvLogger::append(Parameters::resultsFile, minTime, avgTime, maxTime);
     }
 
-    // Generuje tablicę int[n] wg Parameters::distribution.
-    // Wstępne sortowanie wykonywane przez std::sort
+    // Generuje int[n] wg Parameters::distribution
+    // random: std::mt19937 (Mersenne Twister) – szybszy i lepszy niż rand()
+    // ascending/descending: po wygenerowaniu losowym sortuje std::sort
+    // ascending50Per: sortuje tylko pierwszą połowę, reszta losowa
     static int *generateData(int n)
     {
         int *data = new int[n];
-
+                //niby dobry szybki i deteriministyczny generator liczb losowych
         std::mt19937 rng(std::random_device{}());
         std::uniform_int_distribution<int> dist(INT_MIN, INT_MAX);
-
+            //wypełnij tablicę losowymi wartościami
         for (int i = 0; i < n; ++i)
             data[i] = dist(rng);
-
+                    //rozkład danych na wygenerowanej losowej tablicy
         switch (Parameters::distribution)
         {
             case Parameters::Distribution::ascending:
@@ -191,17 +205,18 @@ private:
         return data;
     }
 
-    // Kopiuje src do wybranej struktury sortuje MergeSortem i zwraca czas 
+    // Kopiuje src do wybranej struktury, sortuje MergeSortem i zwraca czas w us
+    // Timer startuje DOPIERO po skopiowaniu – mierzymy tylko czas sortowania, nie budowania struktury
     // Zwraca -1 przy nieobsługiwanej strukturze
     static long long sortOnce(const int *src, int n)
     {
-        Timer t;
+        Timer t;    //timer lokalny, nie start 
 
         switch (Parameters::structure)
         {
             case Parameters::Structures::array:
             {
-                SortArray<int> arr(src, n);
+                SortArray<int> arr(src, n); // kopia danych
                 t.start();
                 MergeSort::sort(arr);
                 t.stop();
@@ -210,7 +225,7 @@ private:
             case Parameters::Structures::singleList:
             {
                 SingleList<int> list;
-                for (int i = 0; i < n; ++i) list.pushBack(src[i]);
+                for (int i = 0; i < n; ++i) list.pushBack(src[i]); // budowanie listy NIE jest mierzone
                 t.start();
                 MergeSort::sort(list);
                 t.stop();
@@ -230,6 +245,7 @@ private:
                 return -1;
         }
 
-        return t.elapsed();
+        return t.elapsed();   //zwraca czas w mikrosekundach
+        
     }
 };

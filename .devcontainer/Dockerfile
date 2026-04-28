@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc-15 \
     g++-15 \
     cmake \
+    make \
     gdb \
     git \
     ca-certificates \

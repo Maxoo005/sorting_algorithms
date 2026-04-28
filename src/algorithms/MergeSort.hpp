@@ -2,12 +2,13 @@
 
 // Merge sort 
 // Złożoność czasowa: O(n log n)
-// Złożoność pamięciowa: O(n) – jeden bufor alokowany raz na całe sortowanie
+// Złożoność pamięciowa: O(n) 
 
 namespace MergeSort
 {
     namespace detail
     {
+        // szablonowa funkcja scalająca dwie posortowane połowy w jedną posortowaną całość
         template <typename Container>
         void merge(Container &c, int left, int mid, int right,
                    typename Container::value_type *tmp)
@@ -16,17 +17,19 @@ namespace MergeSort
             for (int i = left; i <= right; ++i)
                 tmp[i] = c.get(i);
 
-            int i = left;
-            int j = mid + 1;
-            int k = left;
+            int i = left;      // lewy iterator – zaczyna od poczatku lewej polowy
+            int j = mid + 1;   // prawy iterator – zaczyna od poczatku prawej polowy
+            int k = left;      // gdzie wpisujemy wynik z powrotem do c
 
+            // glowna petla – porownujemy czolowe elementy obu polow i wstawiamy mniejszy
             while (i <= mid && j <= right)
             {
-                if (tmp[i] <= tmp[j])
+                if (tmp[i] <= tmp[j])   // <= zamiast < gwarantuje stabilnosc sortowania
                     c.set(k++, tmp[i++]);
                 else
                     c.set(k++, tmp[j++]);
             }
+            // jedna z polow sie skonczyla – dopisz reszte tej drugiej (juz posortowana)
             while (i <= mid)  c.set(k++, tmp[i++]);
             while (j <= right) c.set(k++, tmp[j++]);
         }
@@ -35,11 +38,12 @@ namespace MergeSort
         void sort(Container &c, int left, int right,
                   typename Container::value_type *tmp)
         {
-            if (left >= right) return;
+            if (left >= right) return;  // 0 lub 1 element – nic do zrobienia
+            // dzielic na pol: left + (right-left)/2 zamiast (left+right)/2 bo to chroni przed overflow
             int mid = left + (right - left) / 2;
-            sort(c, left,    mid,   tmp);
-            sort(c, mid + 1, right, tmp);
-            merge(c, left, mid, right, tmp);
+            sort(c, left,    mid,   tmp);    // rekurencja na lewa polowe
+            sort(c, mid + 1, right, tmp);    // rekurencja na prawa polowe
+            merge(c, left, mid, right, tmp); // scalanie – tu dzieje sie wlasciwa robota
         }
     }
 

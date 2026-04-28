@@ -14,17 +14,17 @@ namespace CsvLogger
 {
     namespace detail
     {
-        inline std::string timestamp()
+        inline std::string timestamp()          //zwykła data i czas
         {
             auto now = std::chrono::system_clock::now();
             std::time_t t = std::chrono::system_clock::to_time_t(now);
             std::tm tm{};
 #ifdef _WIN32
-            localtime_s(&tm, &t);
+            localtime_s(&tm, &t);   //wersja windowsa
 #else
-            localtime_r(&t, &tm);
+            localtime_r(&t, &tm);   //wersja linuxa
 #endif
-            char buf[32];
+            char buf[32];           //format daty czasu i czytelny zapisaz
             std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
             return buf;
         }
@@ -68,17 +68,17 @@ namespace CsvLogger
             needsHeader = !check.is_open();
         }
 
-        std::ofstream f(path, std::ios::app);
+        std::ofstream f(path, std::ios::app);   //dopisywanie
         if (!f.is_open())
         {
             std::cerr << "CsvLogger: nie można otworzyć pliku: " << path << "\n";
             return false;
         }
 
-        if (needsHeader)
+        if (needsHeader)            //nagłówek tylko dla nowego pliku
             detail::writeHeader(f);
 
-        f << detail::timestamp()
+        f << detail::timestamp()            //bez << enum nie ogarnie zapisuje prametry i wyniki
           << ";" << static_cast<int>(Parameters::runMode)
           << ";" << static_cast<int>(Parameters::algorithm)
           << ";" << static_cast<int>(Parameters::structure)

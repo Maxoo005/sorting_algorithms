@@ -10,16 +10,16 @@ namespace FileIO
     // kolejne N linii = wartości
     // wskaznik na tab i zapisanie rozwmiaru w outSize
     // błąd = nullptr outSize = 0  
-    template <typename T>
-    T *load(const std::string &path, int &outSize)
+    template <typename T>   //działa na int float double
+    T *load(const std::string &path, int &outSize)   //surowy wskaźnik na tablice
     {
         std::ifstream file(path);
-        if (!file.is_open())
+        if (!file.is_open())            //odczyt do pliku
         {
             std::cerr << "FileIO: nie można otworzyć pliku: " << path << "\n";
             return nullptr;
         }
-
+            //pierwsza linia to liczba elementów potem dalej
         int n = 0;
         file >> n;
         if (n <= 0)
@@ -28,9 +28,9 @@ namespace FileIO
             return nullptr;
         }
 
-        T *data = new T[n];
+        T *data = new T[n];     //alokacja tablicy rozmiar znany podczas wykoannia
 
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i < n; ++i)             // wczytuje element po elemencie
         {
             if (!(file >> data[i]))
             {
@@ -39,7 +39,7 @@ namespace FileIO
                 return nullptr;
             }
         }
-
+        //zapis rozmiaru i zwrot tablicy
         outSize = n;
         return data;
     }

@@ -18,7 +18,7 @@ namespace Verify
 
     // wypisuje czy sortowanie poprawne
     template <typename T>
-    void check(const T *data, int size)
+    void check(const T *data, int size)             //wrapper dla isSorted
     {
         if (isSorted(data, size))
             std::cout << "OK: posortowane poprawnie.\n";

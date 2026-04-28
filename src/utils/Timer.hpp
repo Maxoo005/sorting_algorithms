@@ -1,5 +1,5 @@
 #pragma once
-
+//ifndef guard
 #include <chrono>
 
 // Czas w mikrosekundach
@@ -27,7 +27,7 @@ public:
     {
         return std::chrono::duration_cast<std::chrono::microseconds>(m_end - m_begin).count();
     }
-
+//prosty ale podobno dokładny timer oparty na std::chrono
 private:
     std::chrono::high_resolution_clock::time_point m_begin;
     std::chrono::high_resolution_clock::time_point m_end;

@@ -14,8 +14,8 @@ public:
     struct Node
     {
         T     val;
-        Node *prev;
-        Node *next;
+        Node *prev;  // wskaznik wstecz
+        Node *next;  // wskaznik w przod
         explicit Node(const T &v) : val(v), prev(nullptr), next(nullptr) {}
     };
 
@@ -34,12 +34,13 @@ public:
     DoubleList(const DoubleList &) = delete;
     DoubleList &operator=(const DoubleList &) = delete;
 
-    // myt element na koniec
+    // wstaw element na koniec
+    // trzeba zaktualizowac 4 wskazniki – klasyczne miejsce na bug przy implementacji od zera
     void pushBack(const T &val)
     {
         Node *n = new Node(val);
-        if (!m_tail) { m_head = m_tail = n; }
-        else { n->prev = m_tail; m_tail->next = n; m_tail = n; }
+        if (!m_tail) { m_head = m_tail = n; }           // lista byla pusta
+        else { n->prev = m_tail; m_tail->next = n; m_tail = n; } // doczep na koniec
         ++m_size;
     }
 
@@ -57,7 +58,7 @@ private:
     Node *m_tail;
     int   m_size;
 
-    // do najbliższej strony pocz lub koniea
+    // szukaj od blizszego konca – O(n/2) zamiast O(n) jak w SingleList
     Node *nodeAt(int i) const
     {
         if (i < 0 || i >= m_size)
@@ -65,12 +66,14 @@ private:
 
         if (i < m_size / 2)
         {
+            // blizej glowy – idz od przodu
             Node *cur = m_head;
             for (int k = 0; k < i; ++k) cur = cur->next;
             return cur;
         }
         else
         {
+            // blizej ogona – idz od tylu
             Node *cur = m_tail;
             for (int k = m_size - 1; k > i; --k) cur = cur->prev;
             return cur;
