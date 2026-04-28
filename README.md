@@ -1,3 +1,9 @@
+# TO:DO
+```usunąć repo prowadzącego
+```zapisywanie do pliku nie min max avg tylko wszytsko pokoleoi
+```code review uprościć wszytsko 
+
+
 # Uruchamianie i testowanie ściąga
 ```powershell
 docker run -it --rm -v "${PWD}:/workspace" aizo-projekt1 bash
@@ -95,3 +101,7 @@ Uniwersalny moduł do wczytywania i zapisywania danych.
 Proste narzędzie diagnostyczne sprawdzające poprawność operacji.
 * Weryfikuje, czy tablica jest posortowana w czasie $O(n)$.
 * Wywoływane wyłącznie poza blokiem pomiarowym, dzięki czemu nie wpływa na wyniki wydajnościowe algorytmów.
+
+#### EXPLICIT 
+* blokuje przypadkowe tworzenie obiektu
+* kompilator nie zgaduje co ma zrobić
