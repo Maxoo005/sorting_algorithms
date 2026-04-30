@@ -23,6 +23,6 @@ namespace Verify
         if (isSorted(data, size))
             std::cout << "OK: posortowane poprawnie.\n";
         else
-            std::cout << "BŁĄD: sortowanie niepoprawne!\n";
+            std::cout << "BŁaD: sortowanie niepoprawne!\n";
     }
 }
