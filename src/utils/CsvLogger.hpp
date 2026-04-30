@@ -41,9 +41,7 @@ namespace CsvLogger
               << ";iterations"
               << ";pivot"
               << ";shellParam"
-              << ";min_us"
-              << ";avg_us"
-              << ";max_us"
+              << ";time_us"
               << "\n";
         }
     }
@@ -51,9 +49,7 @@ namespace CsvLogger
     
     // jak pliku ni ema to go stworzy
     inline bool append(const std::string &path,
-                       long long min_us,
-                       long long avg_us,
-                       long long max_us)
+                       long long time_us)
     {
         if (path.empty())
         {
@@ -88,9 +84,7 @@ namespace CsvLogger
           << ";" << Parameters::iterations
           << ";" << static_cast<int>(Parameters::pivot)
           << ";" << static_cast<int>(Parameters::shellParameter)
-          << ";" << min_us
-          << ";" << avg_us
-          << ";" << max_us
+          << ";" << time_us
           << "\n";
 
         return true;
