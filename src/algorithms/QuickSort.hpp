@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Parameters.h"
+#include "Parameters.h"
 #include <random>
 
 // Quick sort

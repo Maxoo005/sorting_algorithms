@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include <stdexcept>
+#include <cassert>
 
 // Lista dwukierunkowa z interfejsem algorytmów 
 // Dostęp do i-tego elementu O(n/2), swap wartości O(n).
@@ -61,8 +61,7 @@ private:
     // szukaj od blizszego konca – O(n/2) zamiast O(n) jak w SingleList
     Node *nodeAt(int i) const
     {
-        if (i < 0 || i >= m_size)
-            throw std::out_of_range("DoubleList: index out of range");
+        assert(i >= 0 && i < m_size); // index out of range
 
         if (i < m_size / 2)
         {

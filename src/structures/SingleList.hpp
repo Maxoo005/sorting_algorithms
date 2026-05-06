@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdexcept>
+#include <cassert>
 
 // Lista jednokierunkowa z interfejsem dla algorytmów sortowania.
 // Dostęp do i-tego elementu O(n), swap wartości O(n).
@@ -56,8 +56,7 @@ private:
 
     Node *nodeAt(int i) const
     {
-        if (i < 0 || i >= m_size)
-            throw std::out_of_range("SingleList: index out of range");
+        assert(i >= 0 && i < m_size); // index out of range
         Node *cur = m_head;
         for (int k = 0; k < i; ++k) cur = cur->next; // zawsze od glowy, O(n)
         return cur;

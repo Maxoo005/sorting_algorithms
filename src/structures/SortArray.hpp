@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <stdexcept>
 
 // Tablica dynamiczna z interfejsem dla alg sortowania
 // Dostęp losowy O(1), swap O(1)

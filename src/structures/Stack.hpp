@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdexcept>
+#include <cassert>
 
 // Stos LIFO zbudowany na liście jednokierunkowej z ręcznym zarządzaniem pamięcią
 // Interfejs get/set/swap/size/pushBack pozwala używać go z szablonowymi algorytmami sortowania
@@ -68,8 +68,7 @@ private:
 
     Node *nodeAt(int i) const
     {
-        if (i < 0 || i >= m_size)
-            throw std::out_of_range("Stack: index out of range");
+        assert(i >= 0 && i < m_size); // index out of range
         Node *cur = m_top;
         for (int k = 0; k < i; ++k) cur = cur->next;
         return cur;
