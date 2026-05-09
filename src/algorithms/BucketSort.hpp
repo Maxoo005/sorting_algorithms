@@ -6,7 +6,6 @@
 // Bucket sort
 // Złożoność czasowa: O(n + k) średnio, gdzie k = liczba kubełków (sqrt(n))
 // Złożoność pamięciowa: O(n + k)
-// Ręczne zarządzanie pamięcią – bez std::vector
 
 namespace BucketSort
 {
@@ -42,7 +41,7 @@ namespace BucketSort
                 data[size++] = val;
             }
 
-            // insertion sort – kubełki są małe, wbudowane sortowanie wystarczy
+            // insertion sort  kubełki są małe
             void insertionSort()
             {
                 for (int i = 1; i < size; ++i)
@@ -86,13 +85,16 @@ namespace BucketSort
         // Alokuj kubełki ręcznie
         detail::Bucket<T> *buckets = new detail::Bucket<T>[k];
 
-        // Rozdziel elementy – long long chroni przed overflow (INT_MIN..INT_MAX)
-        const long long range = (long long)maxVal - (long long)minVal;
+        // double chroni przed overflow przy dużych zakresach
+        const double dMin   = (double)minVal;
+        const double dRange = (double)maxVal - dMin;
         for (int i = 0; i < n; ++i)
         {
-            T v = c.get(i);
-            long long idx = (long long)(v - minVal) * (k - 1) / range;
-            buckets[(int)idx].push(v);
+            T v   = c.get(i);
+            int idx = (int)(((double)v - dMin) / dRange * (k - 1));
+            if (idx < 0)     idx = 0;       
+            if (idx >= k)    idx = k - 1;
+            buckets[idx].push(v);
         }
 
         // Posortuj każdy kubełek i przepisz z powrotem

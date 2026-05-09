@@ -18,7 +18,7 @@
 #include <limits>
 #include <random>
 
-// Glowna klasa sterujaca programem.
+// klasa sterujaca programem.
 // Metody statyczne - nie tworzymy obiektu Runner, wolamy Runner::run().
 // Dispatch po typie danych (T) i strukturze odbywa sie przez szablony.
 class Runner
@@ -59,6 +59,7 @@ private:
         switch (Parameters::dataType)
         {
             case Parameters::DataTypes::typeFloat:       singleFile<float>();        break;
+            case Parameters::DataTypes::typeDouble:      singleFile<double>();       break;
             case Parameters::DataTypes::tyleUnsignedInt: singleFile<unsigned int>(); break;
             case Parameters::DataTypes::typeChar:        singleFile<char>();         break;
             default:                                     singleFile<int>();          break; // typeInt + undefined
@@ -70,13 +71,14 @@ private:
         switch (Parameters::dataType)
         {
             case Parameters::DataTypes::typeFloat:       benchmark<float>();        break;
+            case Parameters::DataTypes::typeDouble:      benchmark<double>();       break;
             case Parameters::DataTypes::tyleUnsignedInt: benchmark<unsigned int>(); break;
             case Parameters::DataTypes::typeChar:        benchmark<char>();         break;
             default:                                     benchmark<int>();          break;
         }
     }
 
-    // Tryb a) - wczytaj plik, posortuj, opcjonalnie zapisz
+    // Tryb a - wczytaj plik, posortuj, zapisz
     template <typename T>
     static void singleFile()
     {
@@ -138,7 +140,7 @@ private:
         delete[] data;
     }
 
-    // Tryb b) - benchmark: N powtorzen, kazdy pomiar zapisywany do CSV
+    // Tryb b - benchmark N powtorzen, kazdy pomiar zapisywany do CSV
     template <typename T>
     static void benchmark()
     {
@@ -158,7 +160,7 @@ private:
             return;
         }
 
-        // Generuj dane raz - kazda iteracja sortuje TEN SAM zestaw (sortOnce kopiuje wewnetrznie)
+        // Generuj dane kazda iteracja sortuje to samo 
         T *src = generateData<T>(n);
 
         long long minTime = LLONG_MAX;
@@ -196,8 +198,6 @@ private:
     {
         T *data = new T[n];
         std::mt19937 rng(std::random_device{}());
-        // uniform_int_distribution wymaga calkowitoliczbowego T
-        // dla float uzywamy uniform_real_distribution
         fillRandom(data, n, rng);
 
         switch (Parameters::distribution)
@@ -240,6 +240,13 @@ private:
     {
         // float: pelny zakres +-3.4e38 bylby numerycznie problematyczny dla BucketSort
         std::uniform_real_distribution<float> dist(-1.0e6f, 1.0e6f);
+        for (int i = 0; i < n; ++i)
+            data[i] = dist(rng);
+    }
+
+    static void fillRandom(double *data, int n, std::mt19937 &rng)
+    {
+        std::uniform_real_distribution<double> dist(-1.0e6, 1.0e6);
         for (int i = 0; i < n; ++i)
             data[i] = dist(rng);
     }
@@ -288,7 +295,7 @@ private:
         return t.elapsed();
     }
 
-    // Dispatch algorytmu - jeden punkt dla wszystkich kombinacji
+    // Dispatch algorytmu - jeden dla wszystkich kombinacji
     template <typename Container>
     static void sortDispatch(Container &c)
     {
