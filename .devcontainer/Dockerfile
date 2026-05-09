@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     make \
     gdb \
     git \
+    python3 \
     ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
